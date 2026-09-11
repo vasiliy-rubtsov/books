@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "books".
@@ -19,6 +20,7 @@ use Yii;
 class Books extends \yii\db\ActiveRecord
 {
 
+    public ?UploadedFile $photoImage = null;
 
     /**
      * {@inheritdoc}
@@ -39,6 +41,7 @@ class Books extends \yii\db\ActiveRecord
             [['year'], 'integer'],
             [['annotation'], 'string'],
             [['title', 'isbn', 'photo'], 'string', 'max' => 255],
+            [['photoImage'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, gif',  'maxSize' => 1024 * 1024 * 2],
         ];
     }
 
@@ -64,7 +67,7 @@ class Books extends \yii\db\ActiveRecord
      */
     public function getAuthors()
     {
-        return $this->hasMany(Authors::class, ['id' => 'author_id'])->viaTable('books_authors', ['book_id' => 'id']);
+        return $this->hasMany(Authors::class, ['id' => 'author_id'])->viaTable('books_authors', ['book_id' => 'id'])->orderBy(['surname' => SORT_ASC]);
     }
 
 }

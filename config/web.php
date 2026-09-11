@@ -55,6 +55,7 @@ $config = [
         ],
     ],
     'params' => $params,
+    'defaultRoute' => 'books',
 ];
 
 if (YII_ENV_DEV) {
