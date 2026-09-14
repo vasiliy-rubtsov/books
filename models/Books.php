@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\web\UploadedFile;
+use yii\helpers\BaseFileHelper;
 
 /**
  * This is the model class for table "books".
@@ -20,7 +21,7 @@ use yii\web\UploadedFile;
 class Books extends \yii\db\ActiveRecord
 {
 
-    public ?UploadedFile $photoImage = null;
+    public UploadedFile|string|null $photoImage = null;
 
     /**
      * {@inheritdoc}
@@ -41,7 +42,7 @@ class Books extends \yii\db\ActiveRecord
             [['year'], 'integer'],
             [['annotation'], 'string'],
             [['title', 'isbn', 'photo'], 'string', 'max' => 255],
-            [['photoImage'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, gif',  'maxSize' => 1024 * 1024 * 2],
+            [['photoImage'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, gif',  'maxSize' => 1024 * 1024 * 1],
         ];
     }
 
@@ -67,7 +68,36 @@ class Books extends \yii\db\ActiveRecord
      */
     public function getAuthors()
     {
-        return $this->hasMany(Authors::class, ['id' => 'author_id'])->viaTable('books_authors', ['book_id' => 'id'])->orderBy(['surname' => SORT_ASC]);
+        return $this->hasMany(
+        Authors::class,
+            ['id' => 'author_id']
+        )->viaTable(
+        'books_authors',
+            ['book_id' => 'id']
+        )->orderBy(['surname' => SORT_ASC]);
     }
 
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        // Выносим валидацию отдельно
+        if ($runValidation && !$this->validate()) {
+            return false;
+        }
+
+        if ($this->photoImage) {
+            $filePath = Yii::getAlias('@webroot/uploads');
+            $fileName = sprintf('%s.%s', uniqid('img_'), $this->photoImage->extension);
+            $this->photo = $fileName;
+            if (
+                !(
+                    BaseFileHelper::createDirectory($filePath)
+                    && $this->photoImage->saveAs(sprintf('%s/%s', $filePath, $fileName))
+                )
+            ) {
+                return false;
+            }
+        }
+
+        return parent::save(false, $attributeNames);
+    }
 }

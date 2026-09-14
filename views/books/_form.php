@@ -14,16 +14,13 @@ use yii\widgets\ActiveForm;
         . ($model->photo ? Html::img(Yii::getAlias('@web/uploads/' . $model->photo), ['width' => 200]) : '')
         . Html::endTag('div')
         . '{input}{hint}'
-        . Html::button('X', ['class' => 'image-clear', 'disabled' => true])
+        . Html::button('X', ['class' => 'image-reset', 'disabled' => true, 'title' => 'Отменить выбор'])
         . '{error}';
-
-
-
 ?>
 
 <div class="books-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
@@ -38,7 +35,12 @@ use yii\widgets\ActiveForm;
         'options' => [
             'class' => 'image-input',
         ]
-    ])->fileInput()->label(Yii::t('app', 'Photo')); ?>
+    ])->fileInput([
+        'hiddenOptions' => [
+            'name' => Html::getInputName($model, 'photo'),
+            'value' => Html::getAttributeValue($model, 'photo')
+        ]
+    ])->label(Yii::t('app', 'Photo')); ?>
 
     <div class="form-group">
         <?= Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-success']) ?>
