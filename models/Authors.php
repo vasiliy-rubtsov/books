@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "authors".
@@ -24,6 +25,22 @@ class Authors extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'authors';
+    }
+
+    /**
+     * @param string|null $term
+     * @return ActiveQuery
+     */
+    public static function findByTerm(?string $term = null): ActiveQuery
+    {
+        $query = self::find()
+            ->orderBy(['surname' => SORT_ASC, 'name' => SORT_ASC]);
+        if ($term) {
+            $query->where(['like', 'name', $term])
+                ->orWhere(['like', 'surname', $term]);
+        }
+
+        return $query;
     }
 
     /**

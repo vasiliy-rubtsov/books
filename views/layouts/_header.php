@@ -14,6 +14,11 @@ $items = [
         'url' => ['/'],
     ],
     [
+        'label' => 'Authors',
+        'url' => ['/authors'],
+        'visible' => Yii::$app->user->isGuest,
+    ],
+    [
         'label' => 'Login',
         'url' => ['/site/login'],
         'visible' => Yii::$app->user->isGuest,

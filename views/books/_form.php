@@ -1,13 +1,15 @@
 <?php
 
+use app\models\Authors;
+use kartik\select2\Select2;
 use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
 /** @var app\models\Books $model */
 /** @var yii\widgets\ActiveForm $form */
-
-    //$photoImageTempl = "{label}\n{hint}\n{error}\n";
 
     $photoImageTempl = '{label}'
         .Html::beginTag('div', ['class' => 'image-preview'])
@@ -25,6 +27,31 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'isbn')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'authorIds')->widget(Select2::class, [
+        'data' =>  array_map(
+            function (Authors $v): string {
+                return sprintf('%s %s', $v->name, $v->surname);
+            },
+            $model->authorsWithId
+        ),
+        'language' => 'ru',
+        'options' => [
+            'placeholder' => 'Выберите авторов...',
+            'multiple' => true,
+        ],
+        'pluginOptions' => [
+            'allowClear' => true,
+            'minimumInputLength' => 3,
+            'ajax' => [
+                'url' => Url::to(['/authors/find-by-term']),
+                'dataType' => 'json',
+                'delay' => 250,
+                'data' => new JsExpression('function(params) { return {term:params.term}; }'),
+                'processResults' => new JsExpression('function(data) { return {results: data.items}; }'),
+            ]
+        ],
+    ])->label('Authors') ?>
 
     <?= $form->field($model, 'year')->textInput() ?>
 

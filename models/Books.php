@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\web\UploadedFile;
 use yii\helpers\BaseFileHelper;
+use voskobovich\linker\LinkerBehavior;
 
 /**
  * This is the model class for table "books".
@@ -17,11 +18,24 @@ use yii\helpers\BaseFileHelper;
  * @property string|null $photo
  *
  * @property Authors[] $authors
+ * @property Authors[] $authorsWithId
  */
 class Books extends \yii\db\ActiveRecord
 {
 
     public UploadedFile|string|null $photoImage = null;
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => LinkerBehavior::class,
+                'relations' => [
+                    'authorIds' => 'authors',
+                ],
+            ],
+        ];
+    }
 
     /**
      * {@inheritdoc}
@@ -43,6 +57,7 @@ class Books extends \yii\db\ActiveRecord
             [['annotation'], 'string'],
             [['title', 'isbn', 'photo'], 'string', 'max' => 255],
             [['photoImage'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, gif',  'maxSize' => 1024 * 1024 * 1],
+            [['authorIds'], 'each', 'rule' => ['integer']],
         ];
     }
 
@@ -99,5 +114,18 @@ class Books extends \yii\db\ActiveRecord
         }
 
         return parent::save(false, $attributeNames);
+    }
+
+    /**
+     * @return Authors[]
+     */
+    public function getAuthorsWithId(): array
+    {
+        $result = [];
+        foreach ($this->authors as $author) {
+            $result[$author->id] = $author;
+        }
+
+        return $result;
     }
 }
