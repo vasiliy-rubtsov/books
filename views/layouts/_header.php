@@ -16,7 +16,10 @@ $items = [
     [
         'label' => 'Authors',
         'url' => ['/authors'],
-        'visible' => Yii::$app->user->isGuest,
+    ],
+    [
+        'label' => 'Top10 published authors',
+        'url' => ['//report/top10-published-authors'],
     ],
     [
         'label' => 'Login',

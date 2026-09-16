@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Authors;
 use app\models\AuthorsSearch;
 use Yii;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -23,6 +24,13 @@ class AuthorsController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+                'access' => [
+                    'class' => AccessControl::class,
+                    'only' => ['create', 'update', 'delete'],
+                    'rules' => [
+                        ['allow' => true, 'actions' => ['create', 'update', 'delete'], 'roles' => ['@'],],
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
                     'actions' => [
